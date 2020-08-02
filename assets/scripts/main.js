@@ -1,4 +1,4 @@
-// Vector (It contains co-ordinate related values and methods)
+
 
 class Vector {
   constructor(x, y) {
@@ -104,10 +104,8 @@ const actors = {
 };
 
 const background = {
-  x: "wall",
   "#": "wall",
   "+": "lava",
-  "!": "lava",
 };
 
 // Level
@@ -130,10 +128,11 @@ class Level {
       for (let columnNo = 0; columnNo < this.rows[0].length; columnNo++) {
         let char = this.rows[rowNo][columnNo];
         let Actor = actors[char];
-        let fieldType = null;
         if (Actor) {
-          let position = new Vector(columnNo, rowNo);
-          this.actors.push(new Actor(position, char));
+          let x = columnNo;
+          let y = rowNo;
+          let position = new Vector(x, y);
+          this.actors.push(new Actor(position));
         } else if (background[char]) {
           gridLine.push(background[char]);
         } else {
@@ -141,6 +140,14 @@ class Level {
         }
       }
       this.backgroundElments.push(gridLine);
+    }
+
+    console.log(this.actors);
+    for (let i = 0; i < this.actors.length; i++) {
+      if (this.actors[i].getType() === "player") {
+        this.player = this.actors[i]; // track player
+        break;
+      }
     }
   }
 }
@@ -205,21 +212,17 @@ function drawGrid(level) {
 function drawActor(actors) {
   return createHtmlElement(
     "div",
-    {style: `width: 600px, height:500px`},
+    { style: `width: 600px, height:500px` },
     ...actors.map((actor) => {
       return createHtmlElement("div", {
         class: `actor ${actor.getType()}`,
         style: `height: ${actor.size.x * scale}px; width: ${
-            actor.size.y * scale
-          }px; top: ${actor.position.y * scale}px; left: ${
-            actor.position.x * scale
-          }px `,
+          actor.size.y * scale
+        }px; top: ${actor.position.y * scale}px; left: ${
+          actor.position.x * scale
+        }px `,
       });
-      
-      
     })
-    
-    // 
   );
 }
 
@@ -228,12 +231,47 @@ DOMDisplay.prototype.syncState = function (level) {
 
   this.actorLayer = drawActor(level.actors);
   this.dom.appendChild(this.actorLayer);
-  this.dom.className = `game ${level.status}`;
-  console.log(this.dom);
+  this.dom.className = `game ${level.status || ""}`;
+  this.dom.scrollLeft -= this.dom.clientWidth / 3;
+  console.log(this.dom.scrollLeft, this.dom, this.dom.clientWidth / 3);
+};
+
+DOMDisplay.prototype.AdjustFrame = function (level) {
+  // Viewport(this.dom) position related
+
+  let width = this.dom.clientWidth;
+  let height = this.dom.clientHeight;
+  // let marginX = width/3;
+  // let marginY = height/3;
+  let margin = width / 3; // (1/3) of viewport width
+  let left = this.dom.scrollLeft;
+  let right = left + width;
+  let top = this.dom.scrollTop;
+  let bottom = top - height;
+
+  // Player's Position Related
+
+  let player = lavel.player;
+  let playerPositionVector = player.position;
+  let playerSizeVector = player.size;
+
+  let playerCenter = playerPositionVector
+    .plus(playerSizeVector.times(0.5))
+    .times(scale);
+
+  if (playerCenter.x < left + margin) {
+    this.dom.scrollLeft = playerCenter.x - margin;
+  } else if (playerCenter.x > right - margin) {
+    this.dom.scrollLeft = playerCenter.x + margin - width; //
+  }
+
+  if (playerCenter.y < top + margin) {
+    this.dom.scrollTop = center.y - margin;
+  } else if (playerCenter.y > bottom - margin) {
+    this.dom.scrollTop = playerCenter.y + margin - width; //
+  }
 };
 
 let simpleLevel = new Level(levelPlan, 0);
 let display = new DOMDisplay(document.body, simpleLevel);
 display.syncState(simpleLevel);
-
-// console.log(simpleLevel.backgroundElments);
