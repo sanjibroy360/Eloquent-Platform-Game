@@ -272,6 +272,6 @@ DOMDisplay.prototype.AdjustFrame = function (level) {
   }
 };
 
-let simpleLevel = new Level(levelPlan, 0);
-let display = new DOMDisplay(document.body, simpleLevel);
-display.syncState(simpleLevel);
+// let simpleLevel = new Level(levelPlan);
+// let display = new DOMDisplay(document.body, simpleLevel);
+// display.syncState(simpleLevel);
