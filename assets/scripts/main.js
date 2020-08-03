@@ -1,5 +1,3 @@
-
-
 class Vector {
   constructor(x, y) {
     this.x = x;
@@ -275,3 +273,23 @@ DOMDisplay.prototype.AdjustFrame = function (level) {
 // let simpleLevel = new Level(levelPlan);
 // let display = new DOMDisplay(document.body, simpleLevel);
 // display.syncState(simpleLevel);
+
+
+// **************** Control *******************
+
+
+Level.prototype.detectObstacle = function(position, size, type) {
+  var xStart = Math.floor(position.x);
+  var xEnd = Math.ceil(position.x + size.x);
+  var yStart = Math.floor(position.y);
+  var yEnd = Math.ceil(position.y+size.y);
+  let obstacle = "";
+  for(let y = yStart; y < yEnd; y++) {
+    for(let x = xStart; x < xEnd; x++) {
+      let isOutside = x < 0 || x > xEnd || y < 0 || y > yEnd;
+      obstacle = isOutside ? "wall" : this.backgroundElments[y][x];
+    }
+  }
+  return obstacle;
+}
+
